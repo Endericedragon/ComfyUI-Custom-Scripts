@@ -1,5 +1,5 @@
 from server import PromptServer
-from aiohttp import web
+from aiohttp import web, ClientSession
 import os
 import folder_paths
 
@@ -42,3 +42,14 @@ async def update_url(request):
 async def get_loras(request):
     loras = folder_paths.get_filename_list("loras")
     return web.json_response(list(map(lambda a: os.path.splitext(a)[0], loras)))
+
+
+@PromptServer.instance.routes.post("/pysssss/getWordList")
+async def get_word_list(request):
+    with open(url_file, "r", encoding="utf-8") as f:
+        url = f.read().strip()
+    async with ClientSession() as session:
+        async with session.get(url) as resp:
+            text = await resp.text()
+            return web.Response(text=text, status=200)
+    return web.Response(status=500)

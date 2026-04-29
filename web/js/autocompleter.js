@@ -85,6 +85,10 @@ async function getCustomWords() {
 	return undefined;
 }
 
+/**
+ * 获取自定义词的URL
+ * @returns {string} 
+ */
 async function getCWLUrl() {
 	const resp = await api.fetchApi("/pysssss/cwlUrl", { cache: "no-store" });
 	if (resp.status === 200) {
@@ -92,14 +96,14 @@ async function getCWLUrl() {
 		let url = await resp.text();
 		return url;
 	}
-	
+
 	return "https://gist.githubusercontent.com/pythongosssss/" +
 		"1d3efa6050356a08cea975183088159a/raw/" +
 		"a18fb2f94f9156cf4476b0c24a09544d6c0baec6/danbooru-tags.txt";
 }
 
 /**
- * 
+ * 将自定义词的URL保存到服务器
  * @param {string} url 
  */
 async function saveCWLUrl(url) {
@@ -251,10 +255,18 @@ class CustomWordsDialog extends ComfyDialog {
 										if (!await saveCWLUrl(this.cwlUrl)) {
 											throw new Error("Error saving URL!");
 										}
-										const res = await fetch(this.cwlUrl);
-										if (res.status !== 200) {
-											throw new Error("Error loading: " + res.status + " " + res.statusText);
-										}
+										const res = await api.fetchApi("/pysssss/getWordList", {
+											method: "POST", cache: "no-store"
+										});
+										// const res = await fetch(this.cwlUrl, {
+										// 	method: "GET",
+										// 	headers: {
+										// 		"Access-Control-Allow-Origin": "*",
+										// 	}
+										// });
+										// if (res.status !== 200) {
+										// 	throw new Error("Error loading: " + res.status + " " + res.statusText);
+										// }
 										this.words.value = await res.text();
 									} catch (error) {
 										console.error(error);
