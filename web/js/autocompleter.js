@@ -6,6 +6,10 @@ import { TextAreaAutoComplete } from "./common/autocomplete.js";
 import { ModelInfoDialog } from "./common/modelInfoDialog.js";
 import { LoraInfoDialog } from "./modelInfo.js";
 
+const DEFAULT_CWL_URL = "https://gist.githubusercontent.com/pythongosssss/" +
+	"1d3efa6050356a08cea975183088159a/raw/" +
+	"a18fb2f94f9156cf4476b0c24a09544d6c0baec6/danbooru-tags.txt";
+
 function parseCSV(csvText) {
 	const rows = [];
 	const delimiter = ",";
@@ -97,9 +101,7 @@ async function getCWLUrl() {
 		return url;
 	}
 
-	return "https://gist.githubusercontent.com/pythongosssss/" +
-		"1d3efa6050356a08cea975183088159a/raw/" +
-		"a18fb2f94f9156cf4476b0c24a09544d6c0baec6/danbooru-tags.txt";
+	return DEFAULT_CWL_URL;
 }
 
 /**
@@ -251,12 +253,12 @@ class CustomWordsDialog extends ComfyDialog {
 								textContent: "Load",
 								onclick: async () => {
 									try {
-										this.cwlUrl = this.input.value;
+										this.cwlUrl = this.input.value || DEFAULT_CWL_URL;
 										if (!await saveCWLUrl(this.cwlUrl)) {
 											throw new Error("Error saving URL!");
 										}
 										const res = await api.fetchApi("/pysssss/getWordList", {
-											method: "POST", cache: "no-store"
+											method: "POST", cache: "no-store", body: app.extensionManager.setting.get(`${id}.Proxies`)
 										});
 										// const res = await fetch(this.cwlUrl, {
 										// 	method: "GET",
@@ -317,6 +319,15 @@ const id = "pysssss.AutoCompleter";
 
 app.registerExtension({
 	name: id,
+	settings: [
+		{
+			id: `${id}.Proxies`,
+			name: "Proxies",
+			type: "text",
+			defaultValue: "",
+			tooltip: "http://<addr>:<port>"
+		}
+	],
 	init() {
 		const STRING = ComfyWidgets.STRING;
 		const SKIP_WIDGETS = new Set(["ttN xyPlot.x_values", "ttN xyPlot.y_values"]);

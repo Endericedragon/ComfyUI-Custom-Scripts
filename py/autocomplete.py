@@ -46,10 +46,14 @@ async def get_loras(request):
 
 @PromptServer.instance.routes.post("/pysssss/getWordList")
 async def get_word_list(request):
+    proxies = await request.text()
+    if proxies:
+        session = ClientSession(proxy=proxies)
+    else:
+        session = ClientSession()
     with open(url_file, "r", encoding="utf-8") as f:
         url = f.read().strip()
-    async with ClientSession() as session:
-        async with session.get(url) as resp:
-            text = await resp.text()
-            return web.Response(text=text, status=200)
-    return web.Response(status=500)
+    async with session.get(url) as resp:
+        text = await resp.text()
+    await session.close()
+    return web.Response(text=text, status=200)
