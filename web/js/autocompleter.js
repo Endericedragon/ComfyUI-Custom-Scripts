@@ -260,15 +260,6 @@ class CustomWordsDialog extends ComfyDialog {
 										const res = await api.fetchApi("/pysssss/getWordList", {
 											method: "POST", cache: "no-store", body: app.extensionManager.setting.get(`${id}.Proxies`)
 										});
-										// const res = await fetch(this.cwlUrl, {
-										// 	method: "GET",
-										// 	headers: {
-										// 		"Access-Control-Allow-Origin": "*",
-										// 	}
-										// });
-										// if (res.status !== 200) {
-										// 	throw new Error("Error loading: " + res.status + " " + res.statusText);
-										// }
 										this.words.value = await res.text();
 									} catch (error) {
 										console.error(error);
